@@ -5,7 +5,7 @@ public class WorldTester : MonoBehaviour
 {
     [SerializeField] private Grid3DRenderer renderer3D;
 
-    public float tickSeconds = 1f;
+    public float tickSeconds = .25f;
     public float simulationDuration = 30f; //Tmax
     private float _acc;
     private float _elapsed;

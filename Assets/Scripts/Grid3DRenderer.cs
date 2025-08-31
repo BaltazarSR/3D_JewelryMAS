@@ -14,6 +14,7 @@ public class Grid3DRenderer : MonoBehaviour
     public GameObject jewelRPrefab;
     public GameObject jewelGPrefab;
     public GameObject jewelBPrefab;
+    public GameObject box;
 
     [Header("Layout")]
     public float cellSize = 1.2f;
@@ -69,6 +70,14 @@ public class Grid3DRenderer : MonoBehaviour
                     rend.material.color = c;
                 }
             }
+        }
+
+        if (box != null)
+        {
+            Vector3 centerLocal = new Vector3((U - 1) * cellSize * 0.5f, 0f, (V - 1) * cellSize * 0.5f);
+            Vector3 centerPos = centerLocal + (centerBoard ? new Vector3(-(U - 1) * cellSize * 0.5f, 0f, -(V - 1) * cellSize * 0.5f) : Vector3.zero);
+            var go = Instantiate(box, centerPos, Quaternion.identity, tilesRoot);
+            go.name = "Box";
         }
     }
 
