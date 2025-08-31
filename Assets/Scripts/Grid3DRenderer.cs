@@ -4,7 +4,7 @@ using UnityEngine;
 public class Grid3DRenderer : MonoBehaviour
 {
     [Header("World reference")]
-    public WorldTester tester; // drag the WorldTester in the Inspector
+    public WorldTester tester;
 
     [Header("Prefabs")]
     public GameObject tilePrefab;
@@ -16,9 +16,9 @@ public class Grid3DRenderer : MonoBehaviour
     public GameObject jewelBPrefab;
 
     [Header("Layout")]
-    public float cellSize = 1.2f; // spacing between cells
-    public float yTile = 0f;      // tile height (y)
-    public float yPiece = 0.6f;   // piece height (y), a bit above the tile
+    public float cellSize = 1.2f;
+    public float yTile = 0f;
+    public float yPiece = 0.1f;
     public bool centerBoard = true;
 
     // Internals
@@ -46,7 +46,6 @@ public class Grid3DRenderer : MonoBehaviour
         Vector3 offset = Vector3.zero;
         if (centerBoard)
         {
-            // center the board around (0,0,0) on XZ plane
             float width = (U - 1) * cellSize;
             float depth = (V - 1) * cellSize;
             offset = new Vector3(-width * 0.5f, 0f, -depth * 0.5f);
@@ -59,12 +58,11 @@ public class Grid3DRenderer : MonoBehaviour
                 Vector3 p = offset + new Vector3(x * cellSize, yTile, y * cellSize);
                 var tile = Instantiate(tilePrefab, p, Quaternion.identity, tilesRoot);
 
-                // optional: tint tile by target color
                 char target = World.grid[x, y].color;
                 var rend = tile.GetComponentInChildren<Renderer>();
                 if (rend != null)
                 {
-                    Color c = Color.gray;
+                    Color c = Color.black;
                     if (target == 'R') c = new Color(0.6f, 0.2f, 0.2f);
                     else if (target == 'G') c = new Color(0.2f, 0.6f, 0.2f);
                     else if (target == 'B') c = new Color(0.2f, 0.3f, 0.7f);
@@ -76,7 +74,7 @@ public class Grid3DRenderer : MonoBehaviour
 
     public void RefreshPieces()
     {
-        ClearPieces(); // simple approach; later you can pool instead
+        ClearPieces();
 
         int U = testerWorld().U;
         int V = testerWorld().V;
@@ -96,26 +94,51 @@ public class Grid3DRenderer : MonoBehaviour
                 var cell = World.grid[x, y];
                 Vector3 p = offset + new Vector3(x * cellSize, yPiece, y * cellSize);
 
-                // Robot?
                 if (cell.state == CellState.robot && cell.LayingRobot != null)
                 {
                     var r = cell.LayingRobot.Color;
                     GameObject prefab = r == 'R' ? robotRPrefab : (r == 'G' ? robotGPrefab : robotBPrefab);
                     var go = Instantiate(prefab, p, Quaternion.identity, piecesRoot);
 
-                    // (Optional) add a tiny badge for carried jewel
                     if (cell.LayingRobot.CarryingJewel != null)
                     {
-                        var badge = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        badge.transform.SetParent(go.transform, false);
-                        badge.transform.localPosition = Vector3.up * 0.6f;
-                        var jc = cell.LayingRobot.CarryingJewel.Color;
-                        var br = badge.GetComponent<Renderer>();
-                        if (br) br.material.color = (jc == 'R') ? Color.red : (jc == 'G' ? Color.green : Color.blue);
-                        DestroyImmediate(badge.GetComponent<Collider>()); // cosmetic
+                        // Carrying Jewel
+                        if (cell.LayingRobot.Color == 'R')
+                        {
+                            var redBadge = Instantiate(jewelRPrefab);
+                            redBadge.name = "Badge";
+
+                            redBadge.transform.SetParent(go.transform, false);
+                            redBadge.transform.localPosition = Vector3.up * 1.6f;
+                            redBadge.transform.localRotation = Quaternion.identity;
+                            DestroyImmediate(redBadge.GetComponent<Collider>());
+                        }
+                        if (cell.LayingRobot.Color == 'B')
+                        {
+                            var blueBadge = Instantiate(jewelBPrefab);
+                            blueBadge.name = "Badge";
+
+                            blueBadge.transform.SetParent(go.transform, false);
+                            blueBadge.transform.localPosition = Vector3.up * 1.6f;
+                            blueBadge.transform.localRotation = Quaternion.identity;
+                            DestroyImmediate(blueBadge.GetComponent<Collider>());
+                        }
+                        if (cell.LayingRobot.Color == 'G')
+                        {
+                            var greenBadge = Instantiate(jewelGPrefab);
+                            greenBadge.name = "Badge";
+
+                            greenBadge.transform.SetParent(go.transform, false);
+                            greenBadge.transform.localPosition = Vector3.up * 1.6f;
+                            greenBadge.transform.localRotation = Quaternion.identity;
+                            DestroyImmediate(greenBadge.GetComponent<Collider>());
+                        }
+
+                        // var jc = cell.LayingRobot.CarryingJewel.Color;
+                        // var br = redBadge.GetComponent<Renderer>();
+                        // if (br) br.material.color = (jc == 'R') ? Color.red : (jc == 'G' ? Color.green : Color.blue);
                     }
                 }
-                // Jewel?
                 else if (cell.state == CellState.jewel && cell.LayingJewel != null)
                 {
                     var j = cell.LayingJewel.Color;
@@ -127,12 +150,8 @@ public class Grid3DRenderer : MonoBehaviour
     }
 
     private World testerWorld() => GetPrivateWorldFromTester();
-
-    // Helper: access the World instance your tester constructed
     private World GetPrivateWorldFromTester()
     {
-        // Expose a getter in WorldTester if you prefer; for now we’ll assume:
-        // add a public property World CurrentWorld { get; } in WorldTester and return it here.
         return tester.CurrentWorld;
     }
 
