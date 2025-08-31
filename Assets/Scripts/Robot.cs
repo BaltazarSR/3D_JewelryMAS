@@ -21,6 +21,7 @@ public class Robot
     public Jewel CarryingJewel;
     public Zone CurrentZone;
     public Intent NextIntent;
+    public int numMoves = 0;
 
     // ---- Heat map fields ----
     private int[,] heat = null!;
@@ -117,6 +118,8 @@ public class Robot
 
             case IntentType.Move:
                 UnityEngine.Debug.Log($"Move intent to ({NextIntent.TargetX},{NextIntent.TargetY}) from ({X},{Y})");
+
+                numMoves++;
 
                 int dx = NextIntent.TargetX - X;
                 int dy = NextIntent.TargetY - Y;

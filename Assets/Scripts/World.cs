@@ -274,21 +274,31 @@ public class World
         );
     }
 
-    public void CheckCompletion()
-{
-    for (int x = 0; x < U; x++)
-        for (int y = 0; y < V; y++)
-        {
-            var cell = grid[x, y];
-
-            if (cell.color != ' ' && cell.LayingJewel != null)
+    public bool CheckCompletion()
+    {
+        int count = 0;
+        for (int x = 0; x < U; x++)
+            for (int y = 0; y < V; y++)
             {
-                if (cell.color == cell.LayingJewel.Color)
+                var cell = grid[x, y];
+
+                if (cell.color != ' ' && cell.LayingJewel != null)
                 {
-                    cell.correct = true;
+                    if (cell.color == cell.LayingJewel.Color)
+                    {
+                        cell.correct = true;
+                        count++;
+                    }
                 }
             }
+        if (count == 9)
+        {
+            return true;
         }
-}
+        else
+        {
+            return false;
+        }
+    }
 
 }
